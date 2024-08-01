@@ -136,9 +136,17 @@ sudo -u $SUDO_USER  touch "${USER_DIR}/.steam/steam/.cef-enable-remote-debugging
 
 echo "30" ; echo "# Finding latest $BRANCH";
 if [ "$BRANCH" = 'prerelease' ] ; then
-    RELEASE=$(curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' | jq -r "first(.[] | select(.prerelease == "true"))")
+    RELEASE=$(curl --request GET \
+  --url 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' \
+  --header "Authorization: Bearer $GITHUB_TOKEN" \
+  --header "X-GitHub-Api-Version: 2022-11-28" \
+  | jq -r "first(.[] | select(.prerelease == true))")
 else
-    RELEASE=$(curl -s 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' | jq -r "first(.[] | select(.prerelease == "false"))")
+    RELEASE=$(curl --request GET \
+  --url 'https://api.github.com/repos/SteamDeckHomebrew/decky-loader/releases' \
+  --header "Authorization: Bearer $GITHUB_TOKEN" \
+  --header "X-GitHub-Api-Version: 2022-11-28" \
+  | jq -r "first(.[] | select(.prerelease == false))")
 fi
 VERSION=$(jq -r '.tag_name' <<< ${RELEASE} )
 DOWNLOADURL=$(jq -r '.assets[].browser_download_url | select(endswith("PluginLoader"))' <<< ${RELEASE})
